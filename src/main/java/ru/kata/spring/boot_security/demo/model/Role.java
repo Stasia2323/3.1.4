@@ -27,10 +27,15 @@ public class Role implements GrantedAuthority {
     }
 
 
+    @Override
+    public String toString() {
+        return "name=" + name;
+    }
 
     public Integer getId() {
         return id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -38,20 +43,22 @@ public class Role implements GrantedAuthority {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
 
     // public Set<User> getUsers() {
-       // return users;
-   // }
+    // return users;
+    // }
     //public void setUsers(Set<User> users) {
-       // this.users = users;
+    // this.users = users;
     //}
 
     public Role(String name) {
         this.name = name;
     }
+
     public Role(Integer id) {
         this.id = id;
     }

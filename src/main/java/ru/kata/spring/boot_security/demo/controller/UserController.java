@@ -11,6 +11,7 @@ import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,7 +39,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public String userInfo(Model model) {
+    public String userInfo(Model model, Principal principal) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) userService.loadUserByUsername(auth.getName());
         model.addAttribute("user", user);
@@ -73,7 +74,7 @@ public class UserController {
     }
 
     @PostMapping("/admin/user-create")
-    public String createUser (@ModelAttribute("user") User user, @RequestParam(value = "role") String[] roles) {
+    public String createUser(@ModelAttribute("user") User user, @RequestParam(value = "role") String[] roles) {
         user.setRoles(getRoles(roles));
         userService.saveUser(user);
         return "redirect:/admin/";
