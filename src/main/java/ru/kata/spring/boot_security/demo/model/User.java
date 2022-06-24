@@ -16,11 +16,11 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "Username")
+    @Column
     private String username;
-    @Column(name = "Password")
+    @Column
     private String password;
-    @Column(name = "Email")
+    @Column
     private String email;
 
 
