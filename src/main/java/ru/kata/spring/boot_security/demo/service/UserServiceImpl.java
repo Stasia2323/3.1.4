@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         this.roleRepository = roleRepository;
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
