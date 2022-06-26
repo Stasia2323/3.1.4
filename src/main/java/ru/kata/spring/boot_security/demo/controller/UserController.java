@@ -86,12 +86,6 @@ public class UserController {
         return "redirect:/admin";
     }
 
-    @PostMapping("/admin/{id}")
-    public String updateUser(User user, @PathVariable Integer id, @RequestParam(value = "role") String[] roles) {
-        user.setRoles(getRoles(roles));
-        userService.saveUser(user);
-        return "redirect:/admin/";
-    }
 
 
     @GetMapping("/admin/user-delete/{id}")
