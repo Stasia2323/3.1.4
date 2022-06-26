@@ -9,6 +9,8 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
+import ru.kata.spring.boot_security.demo.service.RoleService;
+import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 import java.security.Principal;
@@ -27,6 +29,7 @@ public class UserController {
         this.userService = userService;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+
     }
 
 
@@ -38,6 +41,7 @@ public class UserController {
         return roleSet;
     }
 
+    //показывает страничку юзера
     @GetMapping("/user")
     public String userInfo(Model model, Principal principal) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -46,17 +50,40 @@ public class UserController {
         return "user";
     }
 
+    // показывает страничку админа, т.е всех юзеров (удалить, апдейт, добавить)
     @GetMapping("/admin")
     public String adminInfo(Model model) {
         model.addAttribute("users", userService.getAllUsers());
         return "user-list";
     }
 
+    // должен добавлять
+    @GetMapping("/users-create")
+    public String createUserForm(Model model) {
+        model.addAttribute("user", new User());
+        model.addAttribute("role", new ArrayList<Role>());
+        return "user-create";
+    }
+
+    @PostMapping("/user-create")
+    public String createUser(@ModelAttribute("user") User user, @RequestParam(value = "role") String[] roles) {
+        user.setRoles(getRoles(roles));
+        userService.saveUser(user);
+        return "redirect:/admin/";
+    }
+
+
     @GetMapping("/admin/user-update/{id}")
     public String getUserById(@PathVariable("id") Integer id, Model model) {
         User user = userService.getById(id);
         model.addAttribute("user", user);
         return "user-update";
+    }
+
+    @PostMapping("/user-update")
+    public String updateUser(User user) {
+        userService.saveUser(user);
+        return "redirect:/admin";
     }
 
     @PostMapping("/admin/{id}")
@@ -66,19 +93,6 @@ public class UserController {
         return "redirect:/admin/";
     }
 
-    @GetMapping("/admin/user-create")
-    public String createUserForm(Model model) {
-        model.addAttribute("user", new User());
-        model.addAttribute("role", new ArrayList<Role>());
-        return "user-create";
-    }
-
-    @PostMapping("/admin/user-create")
-    public String createUser(@ModelAttribute("user") User user, @RequestParam(value = "role") String[] roles) {
-        user.setRoles(getRoles(roles));
-        userService.saveUser(user);
-        return "redirect:/admin/";
-    }
 
     @GetMapping("/admin/user-delete/{id}")
     public String deleteUser(@PathVariable("id") Integer id) {
