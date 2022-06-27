@@ -65,6 +65,7 @@ public class UserController {
         return "user-create";
     }
 
+
     @PostMapping("/user-create")
     public String createUser(@ModelAttribute("user") User user, @RequestParam(value = "role") String[] roles) {
         user.setRoles(getRoles(roles));
