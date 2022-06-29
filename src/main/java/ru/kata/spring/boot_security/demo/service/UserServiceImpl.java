@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
@@ -17,7 +18,9 @@ import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
@@ -27,7 +30,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @PersistenceContext
     private EntityManager entityManager;
     private PasswordEncoder passwordEncoder;
+    private Set<Role> roles;
 
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
     @Autowired
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
                          @Lazy   PasswordEncoder PasswordEncoder) {
@@ -68,6 +75,36 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         userRepository.deleteById(id);
     }
 
+
+    @Transactional
+    @Override
+    public void saveUser(User user, long[] listRoles) {
+        Set<Role> rolesSet = new HashSet<>();
+        for (int i = 0; i < listRoles.length; i++) {
+            rolesSet.add(roleRepository.findById(listRoles[i]));
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        user.setRoles(rolesSet);
+        userRepository.save(user);
+    }
+
+
+    @Transactional
+    @Override
+    public void updateUser(User user, long[] role_id) {
+        Set<Role> rolesSet = new HashSet<>();
+        for (int i = 0; i < role_id.length; i++) {
+            rolesSet.add(roleRepository.findById(role_id[i]));
+        }
+        if (user.getPassword().startsWith("$2a$10$") && user.getPassword().length() == 60) {
+            user.setPassword(user.getPassword());
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        user.setRoles(rolesSet);
+        userRepository.save(user);
+    }
 }
 
 

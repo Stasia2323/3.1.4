@@ -9,7 +9,7 @@ import java.util.Set;
 public interface RoleService {
 
     Set<Role> getAllRoles();
-    Role findById(Integer  id);
+    Role findById(Long  id);
     Set<Role> findByIdRoles(String roleName);
     void addRole(Role role);
 }

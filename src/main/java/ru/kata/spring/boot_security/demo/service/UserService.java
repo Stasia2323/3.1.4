@@ -10,4 +10,6 @@ public interface UserService {
     User getById(Integer id);
     void saveUser(User user);
     void deleteUser(Integer id);
+    public void saveUser(User user, long[] listRoles);
+    public void updateUser(User user, long[] role_id);
 }

@@ -15,6 +15,7 @@ import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,14 +23,16 @@ import java.util.Set;
 public class UserController {
 
     private final UserServiceImpl userService;
+    private final RoleService roleService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-    public UserController(UserServiceImpl userService, UserRepository userRepository, RoleRepository roleRepository) {
+    public UserController(UserServiceImpl userService, UserRepository userRepository, RoleRepository roleRepository,
+                          RoleService roleService) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-
+        this.roleService = roleService;
     }
 
 
@@ -47,52 +50,41 @@ public class UserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) userService.loadUserByUsername(auth.getName());
         model.addAttribute("user", user);
-        return "user";
+        return "user1";
     }
+
 
     // показывает страничку админа, т.е всех юзеров (удалить, апдейт, добавить)
     @GetMapping("/admin")
     public String adminInfo(Model model) {
+        User thisUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        model.addAttribute("newUser", new User());
         model.addAttribute("users", userService.getAllUsers());
-        return "user-list";
+        model.addAttribute("thisUser", thisUser);
+        model.addAttribute("allRoles", roleService.getAllRoles());
+        return "admin1";
     }
+
 
     // должен добавлять
-    @GetMapping("/users-create")
-    public String createUserForm(Model model) {
-        model.addAttribute("user", new User());
-        model.addAttribute("role", new ArrayList<Role>());
-        return "user-create";
-    }
-
-
-    @PostMapping("/user-create")
-    public String createUser(@ModelAttribute("user") User user, @RequestParam(value = "role") String[] roles) {
-        user.setRoles(getRoles(roles));
-        userService.saveUser(user);
-        return "redirect:/admin/";
-    }
-
-
-    @GetMapping("/admin/user-update/{id}")
-    public String getUserById(@PathVariable("id") Integer id, Model model) {
-        User user = userService.getById(id);
-        model.addAttribute("user", user);
-        return "user-update";
-    }
-
-    @PostMapping("/user-update")
-    public String updateUser(User user) {
-        userService.saveUser(user);
+    @PostMapping("/admin/create")
+        public String addUser(User user, @RequestParam ("listRoles") long[] roles) {
+        userService.saveUser(user,roles);
         return "redirect:/admin";
     }
 
 
+    @PostMapping("/admin/update")
+        public String update(@ModelAttribute("newUser") User user, @RequestParam("listRoles") long[] roleId) {
+            userService.updateUser(user, roleId);
+        return "redirect:/admin";
+    }
 
-    @GetMapping("/admin/user-delete/{id}")
-    public String deleteUser(@PathVariable("id") Integer id) {
+//рабочий
+    @PostMapping("/admin/delete")
+    public String delete(@RequestParam("id") Integer id) {
         userService.deleteUser(id);
-        return "redirect:/admin/";
+        return "redirect:/admin";
     }
 
 }
