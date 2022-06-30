@@ -56,12 +56,11 @@ public class UserController {
 
     // показывает страничку админа, т.е всех юзеров (удалить, апдейт, добавить)
     @GetMapping("/admin")
-    public String adminInfo(Model model) {
-        User thisUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        model.addAttribute("newUser", new User());
-        model.addAttribute("users", userService.getAllUsers());
-        model.addAttribute("thisUser", thisUser);
-        model.addAttribute("allRoles", roleService.getAllRoles());
+    public String userList(Model model) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        model.addAttribute("allUsers", userService.getAllUsers());
+        model.addAttribute("userMain", user);
+        model.addAttribute("roles", roleService.getAllRoles());
         return "admin1";
     }
 
@@ -75,14 +74,14 @@ public class UserController {
 
 
     @PostMapping("/admin/update")
-        public String update(@ModelAttribute("newUser") User user, @RequestParam("listRoles") long[] roleId) {
+        public String update(@ModelAttribute("user") User user, @RequestParam("listRoles") long[] roleId) {
             userService.updateUser(user, roleId);
         return "redirect:/admin";
     }
 
 //рабочий
-    @PostMapping("/admin/delete")
-    public String delete(@RequestParam("id") Integer id) {
+    @PostMapping("/admin/delete/{id}")
+    public String removeUser(@PathVariable Integer id) {
         userService.deleteUser(id);
         return "redirect:/admin";
     }
