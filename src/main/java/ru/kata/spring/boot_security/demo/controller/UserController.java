@@ -22,68 +22,24 @@ import java.util.Set;
 @Controller
 public class UserController {
 
-    private final UserServiceImpl userService;
-    private final RoleService roleService;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
 
-    public UserController(UserServiceImpl userService, UserRepository userRepository, RoleRepository roleRepository,
-                          RoleService roleService) {
-        this.userService = userService;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+    private final RoleService roleService;
+
+    public UserController(RoleService roleService) {
         this.roleService = roleService;
     }
 
 
-    public Set<Role> getRoles(String[] roles) {
-        Set<Role> roleSet = new HashSet<>();
-        for (String role : roles) {
-            roleSet.add((Role) roleRepository.findByName(role));
-        }
-        return roleSet;
-    }
-
-    //показывает страничку юзера
     @GetMapping("/user")
-    public String userInfo(Model model, Principal principal) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) userService.loadUserByUsername(principal.getName());
-        model.addAttribute("user", user);
+    public String userInfo() {
         return "user1";
     }
 
-
-    // показывает страничку админа, т.е всех юзеров (удалить, апдейт, добавить)
     @GetMapping("/admin")
     public String userList(Model model) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        model.addAttribute("allUsers", userService.getAllUsers());
-        model.addAttribute("userMain", user);
-        model.addAttribute("roles", roleService.getAllRoles());
+        model.addAttribute("amountOfRoles", roleService.getAllRoles());
         return "admin1";
     }
 
-
-    // должен добавлять
-    @PostMapping("/admin/create")
-        public String addUser(User user, @RequestParam ("listRoles") long[] roles) {
-        userService.saveUser(user,roles);
-        return "redirect:/admin";
-    }
-
-
-    @PostMapping("/admin/update")
-        public String update(@ModelAttribute("user") User user, @RequestParam("listRoles") long[] roleId) {
-            userService.updateUser(user, roleId);
-        return "redirect:/admin";
-    }
-
-//рабочий
-    @PostMapping("/admin/delete/{id}")
-    public String removeUser(@PathVariable Integer id) {
-        userService.deleteUser(id);
-        return "redirect:/admin";
-    }
 
 }

@@ -92,18 +92,17 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Transactional
     @Override
-    public void updateUser(User user, long[] role_id) {
-        Set<Role> rolesSet = new HashSet<>();
-        for (int i = 0; i < role_id.length; i++) {
-            rolesSet.add(roleRepository.findById(role_id[i]));
-        }
+    public void updateUser(User user) {
         if (user.getPassword().startsWith("$2a$10$") && user.getPassword().length() == 60) {
             user.setPassword(user.getPassword());
         } else {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-        user.setRoles(rolesSet);
         userRepository.save(user);
+    }
+
+    public User getByUsername(String username){
+        return userRepository.findByUsername(username);
     }
 }
 
